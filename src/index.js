@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import getParsedObject from './getParsedObject';
-import getAST from './getAST';
+import getDiffAST from './getDiffAST';
 import render from './renderers';
 
 const genDiff = (beforePath, afterPath, outputFormat = 'pretty') => {
@@ -14,9 +14,7 @@ const genDiff = (beforePath, afterPath, outputFormat = 'pretty') => {
   const beforeObject = getParsedObject(beforeFile, beforeFileType);
   const afterObject = getParsedObject(afterFile, afterFileType);
 
-  const diffAST = getAST(beforeObject, afterObject);
-
-  console.log(diffAST);
+  const diffAST = getDiffAST(beforeObject, afterObject);
 
   return render(diffAST, outputFormat);
 };

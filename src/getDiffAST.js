@@ -4,7 +4,6 @@ const getDiffAST = (beforeObject, afterObject) => {
 
   const resultAST = keysUnion.map((key) => {
     if ((key in beforeObject) && !(key in afterObject)) {
-      console.log(`${key} deleted`);
       return { key, type: 'deleted', value: beforeObject[key] };
     }
 
@@ -21,6 +20,8 @@ const getDiffAST = (beforeObject, afterObject) => {
     return { key, type: 'unchanged', value: afterObject[key] };
   });
 
+
+  console.log(resultAST);
   return resultAST;
 };
 

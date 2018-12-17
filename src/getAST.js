@@ -3,11 +3,12 @@ const getDiffAST = (beforeObject, afterObject) => {
     .filter((value, index, self) => self.indexOf(value) === index);
 
   const resultAST = keysUnion.map((key) => {
-    if (beforeObject[key] && !afterObject[key]) {
+    if ((key in beforeObject) && !(key in afterObject)) {
+      console.log(`${key} deleted`);
       return { key, type: 'deleted', value: beforeObject[key] };
     }
 
-    if (!beforeObject[key] && afterObject[key]) {
+    if (!(key in beforeObject) && (key in afterObject)) {
       return { key, type: 'added', value: afterObject[key] };
     }
 

@@ -1,38 +1,38 @@
-const prettyRenderingMethods = [
-  {
-    type: 'unchanged',
-    method: (key, value) => ` ${key}: ${value}`,
-  },
-  {
-    type: 'deleted',
-    method: (key, value) => ` - ${key}: ${value}`,
-  },
-  {
-    type: 'added',
-    method: (key, value) => ` + ${key}: ${value}`,
-  },
-  {
-    type: 'changed',
-    method: (key, valueNew, valueOld) => ` - ${key}: ${valueOld} \n + ${key}: ${valueNew}`,
-  },
-];
+const getIndent = depth => '  '.repeat(depth);
 
-const getPrettyNode = (node) => {
-  const {
-    key, type: nodeType, value, valueOld, valueNew,
-  } = node;
+const getPrettyNode = (node, depth = 1) => {
+  const prettyRenderingMethods = [
+    {
+      type: 'unchanged',
+      method: ({ key, value }) => `${depth}${getIndent(depth + 1)}${key}: ${JSON.stringify(value)}`,
+    },
+    {
+      type: 'deleted',
+      method: ({ key, value }) => `${depth}${getIndent(depth)}- ${key}: ${JSON.stringify(value)}`,
+    },
+    {
+      type: 'added',
+      method: ({ key, value }) => `${depth}${getIndent(depth)}+ ${key}: ${JSON.stringify(value)}`,
+    },
+    {
+      type: 'changed',
+      method: ({ key, valueOld, valueNew }) => `${depth}${getIndent(depth)}- ${key}: ${JSON.stringify(valueOld)}\n` +
+        `${depth}${getIndent(depth)}+ ${key}: ${JSON.stringify(valueNew)}`,
+    },
+    {
+      type: 'parent',
+      method: ({ key, children }) => `${depth}${getIndent(depth + 1)}${key}:
+${getIndent(depth + 1)}{
+${children.map(c => getPrettyNode(c, depth + 1)).join('\n')}
+${getIndent(depth + 1)}}`,
+    },
+  ];
+
+  const { type: nodeType } = node;
 
   const getPrettyRenderingNode = prettyRenderingMethods.find(({ type }) => type === nodeType);
 
-  return getPrettyRenderingNode.method(
-    key,
-    (typeof value !== 'undefined' ? value : valueNew),
-    valueOld,
-  );
+  return getPrettyRenderingNode.method(node);
 };
 
-export default ast => (
-  `{
-  ${ast.map(getPrettyNode).join('\n')}
-}`
-);
+export default ast => `{\n${ast.map(n => getPrettyNode(n)).join('\n')}\n}`;

@@ -10,7 +10,7 @@
     "lint": "eslint --ignore-path .gitignore ."
   },
   "bin": {
-    "gen-diff": "dist/bin/genDiff.js"
+    "gendiff": "dist/bin/gendiff.js"
   },
   "files": [
     "dist"

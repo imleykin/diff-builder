@@ -1,38 +1,41 @@
-const getIndent = depth => '  '.repeat(depth);
+const spacesInTab = 2;
+const getIndent = depth => ' '.repeat(depth * spacesInTab);
 
-const getPrettyNode = (node, depth = 1) => {
-  const prettyRenderingMethods = [
-    {
-      type: 'unchanged',
-      method: ({ key, value }) => `${depth}${getIndent(depth + 1)}${key}: ${JSON.stringify(value)}`,
-    },
-    {
-      type: 'deleted',
-      method: ({ key, value }) => `${depth}${getIndent(depth)}- ${key}: ${JSON.stringify(value)}`,
-    },
-    {
-      type: 'added',
-      method: ({ key, value }) => `${depth}${getIndent(depth)}+ ${key}: ${JSON.stringify(value)}`,
-    },
-    {
-      type: 'changed',
-      method: ({ key, valueOld, valueNew }) => `${depth}${getIndent(depth)}- ${key}: ${JSON.stringify(valueOld)}\n` +
-        `${depth}${getIndent(depth)}+ ${key}: ${JSON.stringify(valueNew)}`,
-    },
-    {
-      type: 'parent',
-      method: ({ key, children }) => `${depth}${getIndent(depth + 1)}${key}:
-${getIndent(depth + 1)}{
-${children.map(c => getPrettyNode(c, depth + 1)).join('\n')}
-${getIndent(depth + 1)}}`,
-    },
-  ];
+const stringify = (value, depth) => {
+  if (!(value instanceof Object)) {
+    return value;
+  }
 
-  const { type: nodeType } = node;
-
-  const getPrettyRenderingNode = prettyRenderingMethods.find(({ type }) => type === nodeType);
-
-  return getPrettyRenderingNode.method(node);
+  const items = JSON.stringify(value, null, spacesInTab)
+    .split('\n').slice(1, -1);
+  return [
+    '{',
+    `${items.map(item => `${getIndent(depth + 1)}${item}`).join('\n')}`,
+    `${getIndent(depth)}}`,
+  ].join('\n');
 };
 
-export default ast => `{\n${ast.map(n => getPrettyNode(n)).join('\n')}\n}`;
+const getPrettyNode = (node, depth = 1) => {
+  const prettyRenderingMethods = {
+    unchanged: ({ key, value }) => `${getIndent(depth + 1)}${key}: ${stringify(value, depth + 1)}`,
+    deleted: ({ key, value }) => `${getIndent(depth)}- ${key}: ${stringify(value, depth + 1)}`,
+    added: ({ key, value }) => `${getIndent(depth)}+ ${key}: ${stringify(value, depth + 1)}`,
+    changed: ({ key, valueOld, valueNew }) => [
+      `${getIndent(depth)}- ${key}: ${stringify(valueOld, depth + 1)}`,
+      `${getIndent(depth)}+ ${key}: ${stringify(valueNew, depth + 1)}`,
+    ].join('\n'),
+    parent: ({ key, children }) => [
+      `${getIndent(depth + 1)}${key}: {`,
+      `${children.map(c => getPrettyNode(c, depth + 2)).join('\n')}`,
+      `${getIndent(depth + 1)}}`,
+    ].join('\n'),
+  };
+
+  return prettyRenderingMethods[node.type](node);
+};
+
+export default (ast) => {
+  const result = ast.map(n => getPrettyNode(n));
+  console.log(result);
+  return `{\n${result.join('\n')}\n}`;
+};

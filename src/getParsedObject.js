@@ -1,5 +1,10 @@
+import yaml from 'js-yaml';
+import ini from 'ini';
+
 const parsingMethods = {
   '.json': JSON.parse,
+  '.yml': yaml.safeLoad,
+  '.ini': ini.decode,
 };
 
 const getParsingMethod = (fileType) => {

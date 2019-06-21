@@ -16,7 +16,9 @@ const genDiff = (beforePath, afterPath, outputFormat = 'pretty') => {
 
   const diffAST = getDiffAST(beforeObject, afterObject);
 
-  return render(diffAST, outputFormat);
+  const renderedDiff = render(diffAST, outputFormat);
+  console.log(JSON.stringify(renderedDiff, undefined, 4));
+  return renderedDiff;
 };
 
 export default genDiff;

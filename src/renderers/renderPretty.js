@@ -7,7 +7,8 @@ const stringify = (value, depth) => {
   }
 
   const items = JSON.stringify(value, null, spacesInTab)
-    .split('\n').slice(1, -1);
+    .split('\n')
+    .slice(1, -1);
   return [
     '{',
     `${items.map(item => `${getIndent(depth + 1)}${item}`).join('\n')}`,

@@ -36,6 +36,5 @@ const getPrettyNode = (node, depth = 1) => {
 
 export default (ast) => {
   const result = ast.map(n => getPrettyNode(n));
-  console.log(result);
   return `{\n${result.join('\n')}\n}`;
 };
